@@ -1,8 +1,20 @@
+# Fichiers Python générés
 __pycache__/
 *.py[cod]
+.pytest_cache/
+
+# Environnement virtuel
 .venv/
 venv/
+
+# Base de données Locale
 db.sqlite3
+
+# Secret et configuraion locale
 .env
+
+# Fichiers générés par Django
 staticfiles/
-.pytest_cache/
+
+#Réglages de l'éditeur
+.vscode/
