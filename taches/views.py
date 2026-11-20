@@ -5,7 +5,15 @@ from .forms import TacheForm
 
 def liste_taches(request):
     taches = Tache.objects.all().order_by("-date_creation")
-    return render(request, "taches/liste.html", {"taches": taches})
+    statut = request.GET.get("statut")
+    statuts_valides = [code for code, _ in Tache.STATUTS]
+    if statut in statuts_valides:
+        taches = taches.filter(statut=statut)
+    return render(request, "taches/liste.html", {
+        "taches": taches,
+        "statuts": Tache.STATUTS,
+        "statut_actif": statut,
+    })
 
 def creer_tache(request):
     form = TacheForm(request.POST or None)
