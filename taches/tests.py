@@ -20,3 +20,16 @@ class TacheTests(TestCase):
                 tache = Tache(titre="Test", priorite=valeur)
                 with self.assertRaises(ValidationError):
                     tache.full_clean()
+    def test_filtre_par_statut(self):
+        Tache.objects.create(titre="Tache A", statut="EN_COURS")
+        Tache.objects.create(titre="Tache B", statut="A_FAIRE")
+        response = self.client.get(reverse("liste_taches"), {"statut": "EN_COURS"})
+        self.assertContains(response, "Tache A")
+        self.assertNotContains(response, "Tache B")
+
+    def test_filtre_statut_invalide_affiche_tout(self):
+        Tache.objects.create(titre="Tache A", statut="EN_COURS")
+        Tache.objects.create(titre="Tache B", statut="A_FAIRE")
+        response = self.client.get(reverse("liste_taches"), {"statut": "INCONNU"})
+        self.assertContains(response, "Tache A")
+        self.assertContains(response, "Tache B")
