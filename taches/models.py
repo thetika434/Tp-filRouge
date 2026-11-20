@@ -1,3 +1,4 @@
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
 class Tache(models.Model):
@@ -9,7 +10,10 @@ class Tache(models.Model):
     titre = models.CharField(max_length=120)
     description = models.TextField(blank=True)
     statut = models.CharField(max_length=12, choices=STATUTS, default="A_FAIRE")
-    priorite = models.PositiveSmallIntegerField(default=2)
+    priorite = models.PositiveSmallIntegerField(
+        default=2,
+        validators=[MinValueValidator(1), MaxValueValidator(3)],
+    )
     date_creation = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
