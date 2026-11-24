@@ -12,7 +12,7 @@ class Tache(models.Model):
     statut = models.CharField(max_length=12, choices=STATUTS, default="A_FAIRE")
     priorite = models.PositiveSmallIntegerField(
         default=2,
-        validators=[MinValueValidator(1), MaxValueValidator(30)],
+        validators=[MinValueValidator(1), MaxValueValidator(3)],
     )
     date_creation = models.DateTimeField(auto_now_add=True)
 
