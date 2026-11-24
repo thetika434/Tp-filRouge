@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django.urls import reverse
 from .models import Tache
@@ -96,3 +97,24 @@ class TacheTests(TestCase):
         response = self.client.get(reverse("supprimer_tache", args=[tache.pk]))
         self.assertEqual(response.status_code, 405)
         self.assertTrue(Tache.objects.filter(pk=tache.pk).exists())
+
+    def test_priorite_hors_limites_refusee_par_le_modele(self):
+        for valeur in (0, 10):
+            with self.subTest(priorite=valeur):
+                tache = Tache(titre="Test", priorite=valeur)
+                with self.assertRaises(ValidationError):
+                    tache.full_clean()
+
+    def test_filtre_par_statut(self):
+        Tache.objects.create(titre="Tache A", statut="EN_COURS")
+        Tache.objects.create(titre="Tache B", statut="A_FAIRE")
+        response = self.client.get(reverse("liste_taches"), {"statut": "EN_COURS"})
+        self.assertContains(response, "Tache A")
+        self.assertNotContains(response, "Tache B")
+
+    def test_filtre_statut_invalide_affiche_tout(self):
+        Tache.objects.create(titre="Tache A", statut="EN_COURS")
+        Tache.objects.create(titre="Tache B", statut="A_FAIRE")
+        response = self.client.get(reverse("liste_taches"), {"statut": "INCONNU"})
+        self.assertContains(response, "Tache A")
+        self.assertContains(response, "Tache B")
