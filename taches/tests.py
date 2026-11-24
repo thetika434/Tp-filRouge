@@ -118,3 +118,27 @@ class TacheTests(TestCase):
         response = self.client.get(reverse("liste_taches"), {"statut": "INCONNU"})
         self.assertContains(response, "Tache A")
         self.assertContains(response, "Tache B")
+    def test_creation_par_formulaire(self):
+        response = self.client.post(
+            reverse("creer_tache"),
+            {"titre": "Nouvelle", "description": "", "statut": "A_FAIRE", "priorite": 2},
+        )
+        self.assertRedirects(response, reverse("liste_taches"))
+        self.assertTrue(Tache.objects.filter(titre="Nouvelle").exists())
+
+    def test_formulaire_refuse_priorite_invalide(self):
+        form = TacheForm(data={"titre": "X", "statut": "A_FAIRE", "priorite": 5})
+        self.assertFalse(form.is_valid())
+        self.assertIn("priorite", form.errors)
+
+    def test_suppression_post(self):
+        tache = Tache.objects.create(titre="A supprimer")
+        response = self.client.post(reverse("supprimer_tache", args=[tache.pk]))
+        self.assertRedirects(response, reverse("liste_taches"))
+        self.assertFalse(Tache.objects.filter(pk=tache.pk).exists())
+
+    def test_suppression_get_refusee(self):
+        tache = Tache.objects.create(titre="A garder")
+        response = self.client.get(reverse("supprimer_tache", args=[tache.pk]))
+        self.assertEqual(response.status_code, 405)
+        self.assertTrue(Tache.objects.filter(pk=tache.pk).exists())
